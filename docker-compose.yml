@@ -1,0 +1,63 @@
+version: "3.8"
+
+services:
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DATABASE_URL=postgres://money_transfer_user:your_strong_password@db:5432/money_transfer_db
+      - REDIS_URL=redis://redis:6379/0
+
+  db:
+    image: postgres:13
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=money_transfer_db
+      - POSTGRES_USER=money_transfer_user
+      - POSTGRES_PASSWORD=your_strong_password
+
+  redis:
+    image: redis:6
+
+  celery:
+    build: .
+    command: celery -A config worker -l INFO
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - web
+      - db
+      - redis
+    environment:
+      - DATABASE_URL=postgres://money_transfer_user:your_strong_password@db:5432/money_transfer_db
+      - REDIS_URL=redis://redis:6379/0
+
+  celery-beat:
+    build: .
+    command: celery -A config beat -l INFO
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - web
+      - db
+      - redis
+    environment:
+      - DATABASE_URL=postgres://money_transfer_user:Hamza.elaloui2000@db:5432/money_transfer_db
+      - REDIS_URL=redis://redis:6379/0
+
+volumes:
+  postgres_data:
