@@ -1,31 +1,22 @@
 from rest_framework import serializers
 
-from transactions.models import Transaction, TransactionFee
-
-
-class TransactionFeeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TransactionFee
-        fields = ["id", "amount", "fee_type"]
+from transactions.models import Transaction
 
 
 class TransactionSerializer(serializers.ModelSerializer):
-    fee = TransactionFeeSerializer(read_only=True)
-
     class Meta:
         model = Transaction
         fields = [
             "id",
             "sender",
             "receiver",
-            "agent",
             "amount",
             "currency",
             "status",
-            "completed_at",
-            "fee",
+            "created_at",
+            "updated_at",
         ]
-        read_only_fields = ["id", "status", "completed_at"]
+        read_only_fields = ["status", "created_at", "updated_at"]
 
 
 class CreateTransactionSerializer(serializers.ModelSerializer):
